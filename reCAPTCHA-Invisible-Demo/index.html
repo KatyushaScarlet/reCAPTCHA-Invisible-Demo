@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>reCAPTCHA Invisible Demo</title>
+    <script type="text/javascript" src="https://www.recaptcha.net/recaptcha/api.js"></script>
+    <script type="text/javascript" src="js/ajax.js"></script>
+</head>
+<body>
+    <button class="g-recaptcha" data-sitekey="6LdaK0UUAAAAABc6ADbuR7jXx_2N4zDOvThnWkmk" data-callback="btnSubmit">Submit</button>
+    <br />
+    <p style="display:inline;color:red">验证状态: </p><span id="sp1"></span>
+    <br />
+    <p style="display:inline;color:red">回调结果: </p><span id="sp2"></span>
+    <br />
+    <p style="display:inline;color:red">取值结果: </p><span id="sp3"></span>
+    <br />
+    <p style="display:inline;color:red">最终状态: </p><span id="sp4"></span>
+    <script>
+        /*
+        获取方法：
+        1. grecaptcha.getResponse()
+        2. data-callback
+        （以上两种方式取值均一致）
+        */
+        function btnSubmit(data) {
+            let verifyCode = grecaptcha.getResponse();
+            document.getElementById("sp2").innerText = verifyCode;//直接取得g-recaptcha-response
+            document.getElementById("sp3").innerText = data;//利用回调函数取得
+            if (!verifyCode) {//如果g-recaptcha-response不为空
+                document.getElementById("sp1").innerText = "没有验证";
+            } else {
+                document.getElementById("sp1").innerText = "已经验证";
+
+                let ajax = new Ajax();
+                ajax.send({
+                    method: "POST",
+                    url: "/verify.ashx",
+                    resType: "json",
+                    data: {
+                        code: verifyCode//将g-recaptcha-response值传到后端
+                    },
+                    success: function (data) {
+                        document.getElementById("sp4").innerText = JSON.stringify(data);
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
